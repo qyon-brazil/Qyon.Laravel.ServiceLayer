@@ -21,13 +21,17 @@ trait DatabaseTrait
      *
      * @param [type] $tableName
      * @param [type] $columnName
+     * @param string $connection
      *
      * @return void
      */
-    protected function columnExists($tableName, $columnName)
+    protected function columnExists($tableName, $columnName, ?string $connection = null)
     {
-
-        $res = DB::table("information_schema.columns")
+    
+        $database = $connection ?? Config::get("database.default");
+        
+        $res = DB::connection($database)
+            ->table("information_schema.columns")
             ->select('column_name')
             ->whereRaw('concat(table_schema,\'.\',table_name) = \'' . $tableName . '\'')
             ->where('column_name', $columnName)
@@ -40,12 +44,16 @@ trait DatabaseTrait
      * tableExists function
      *
      * @param [type] $tableName
+     * @param string $connection
      *
      * @return void
      */
-    protected function tableExists($tableName)
+    protected function tableExists($tableName, ?string $connection = null)
     {
-        $res = DB::table("information_schema.tables")
+        $database = $connection ?? Config::get("database.default");
+
+        $res = DB::connection($database)
+            ->table("information_schema.tables")
             ->select('table_name')
             ->whereRaw('concat(table_schema,\'.\',table_name) = \'' . $tableName . '\'')
             ->first();
